@@ -1,7 +1,7 @@
 # Punch-Up Light
 
 A Firefox/Chrome extension + Python system that controls a Kasa smart light to warn you about PunchIt punch issues with an escalating color system.
-[[punchit-light.gif]]
+![A gif showing the light in operation](punchit-light.gif)
 
 ## Overview
 
