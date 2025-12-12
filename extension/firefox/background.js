@@ -1,140 +1,124 @@
-// Background script for Punch-Up Alert extension
-// Handles alarms, notifications, and data storage
+// Background script for Punch-Up Light extension
+// Handles data storage and light control
 
-const ALARM_NAME = 'punchReminder';
-const DEFAULT_ALERT_TIME = '17:00'; // 5:00 PM
-
-// Initialize extension on install
-browser.runtime.onInstalled.addListener(async () => {
-  console.log('Punch-Up Extension installed');
-
-  // Set default settings if not already set
-  const settings = await browser.storage.local.get(['alertTime', 'enabled']);
-
-  if (!settings.alertTime) {
-    await browser.storage.local.set({ alertTime: DEFAULT_ALERT_TIME });
-  }
-
-  if (settings.enabled === undefined) {
-    await browser.storage.local.set({ enabled: true });
-  }
-
-  // Set up the alarm
-  setupAlarm();
-});
-
-// Set up alarm based on configured time
-async function setupAlarm() {
-  const settings = await browser.storage.local.get(['alertTime', 'enabled']);
-
-  if (!settings.enabled) {
-    console.log('Alerts disabled, not setting up alarm');
+// Update icon based on punch data
+async function updateIcon(data) {
+  if (!data || !data.issues) {
+    // No data yet - use default icon
+    await browser.action.setIcon({
+      path: {
+        48: 'icon-48.png',
+        96: 'icon-96.png'
+      }
+    });
     return;
   }
 
-  const alertTime = settings.alertTime || DEFAULT_ALERT_TIME;
-  const nextAlarmTime = getNextAlarmTime(alertTime);
-
-  // Clear existing alarm
-  await browser.alarms.clear(ALARM_NAME);
-
-  // Create new alarm
-  await browser.alarms.create(ALARM_NAME, {
-    when: nextAlarmTime,
-    periodInMinutes: 1440 // Repeat daily (24 hours)
-  });
-
-  console.log(`Alarm set for ${new Date(nextAlarmTime).toLocaleString()}`);
+  if (data.issues.length === 0) {
+    // No issues - use green icon
+    await browser.action.setIcon({
+      path: {
+        48: 'icon-good-48.png',
+        96: 'icon-good-96.png'
+      }
+    });
+    await browser.action.setBadgeText({ text: '' });
+  } else {
+    // Has issues - use red icon with badge showing count
+    await browser.action.setIcon({
+      path: {
+        48: 'icon-issues-48.png',
+        96: 'icon-issues-96.png'
+      }
+    });
+    await browser.action.setBadgeText({ text: data.issues.length.toString() });
+    await browser.action.setBadgeBackgroundColor({ color: '#dc3545' });
+  }
 }
 
-// Calculate next alarm time based on HH:MM format
-function getNextAlarmTime(timeString) {
-  const [hours, minutes] = timeString.split(':').map(Number);
-  const now = new Date();
-  const target = new Date();
+// Check if last visit was more than 24 hours ago and update icon accordingly
+async function checkLastVisit() {
+  const { lastVisitTime, punchData } = await browser.storage.local.get(['lastVisitTime', 'punchData']);
 
-  target.setHours(hours, minutes, 0, 0);
-
-  // If target time has passed today, schedule for tomorrow
-  if (now >= target) {
-    target.setDate(target.getDate() + 1);
-  }
-
-  return target.getTime();
-}
-
-// Listen for alarm trigger
-browser.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === ALARM_NAME) {
-    console.log('Punch reminder alarm triggered');
-    await showNotification();
-  }
-});
-
-// Show notification with punch data
-async function showNotification() {
-  const result = await browser.storage.local.get('punchData');
-  const data = result.punchData || {};
-
-  let title = 'Punch-Up Reminder';
-  let message = 'Time to check your punch status!';
-
-  if (data.issues) {
-    if (data.issues.length === 0) {
-      title = 'Punch Status: All Good!';
-      message = 'No punch issues found. Great work!';
-    } else {
-      title = `Punch Issues Found (${data.issues.length})`;
-      message = data.issues.map(issue => `${issue.date}: ${issue.description}`).join('\n');
+  if (!lastVisitTime) {
+    // No visit recorded yet - show default icon or data-based icon if available
+    if (punchData) {
+      await updateIcon(punchData);
     }
-  } else if (data.timestamp) {
-    message += `\nLast updated: ${new Date(data.timestamp).toLocaleString()}`;
+    return;
   }
 
-  await browser.notifications.create({
-    type: 'basic',
-    title: title,
-    message: message
-  });
+  const hoursSinceVisit = (Date.now() - lastVisitTime) / (1000 * 60 * 60);
 
-  console.log('Notification shown:', message);
+  if (hoursSinceVisit >= 24) {
+    // Show issues icon to remind user to check
+    await browser.action.setIcon({
+      path: {
+        48: 'icon-issues-48.png',
+        96: 'icon-issues-96.png'
+      }
+    });
+    await browser.action.setBadgeText({ text: '!' });
+    await browser.action.setBadgeBackgroundColor({ color: '#ff9800' }); // Orange for "needs checking"
+    console.log('PunchIt page not visited in 24 hours - showing reminder icon');
+  } else if (punchData) {
+    // Less than 24 hours - show normal icon based on data
+    await updateIcon(punchData);
+  }
 }
 
 // Store scraped data when received from content script
 browser.runtime.onMessage.addListener((message, sender) => {
   if (message.type === 'PUNCH_DATA_SCRAPED') {
-    console.log('Received punch data from content script:', message.data);
-
     browser.storage.local.set({
       punchData: message.data,
-      lastUpdate: new Date().toISOString()
+      lastUpdate: new Date().toISOString(),
+      lastVisitTime: Date.now()  // Track when user last visited PunchIt page
+    });
+
+    // Update icon based on issues
+    updateIcon(message.data);
+
+    // Update physical light
+    const hasIssues = message.data.issues && message.data.issues.length > 0;
+    lightController.updateLight(hasIssues).catch(err => {
+      console.error('Failed to update light:', err);
     });
 
     return Promise.resolve({ success: true });
   }
 
-  if (message.type === 'TEST_NOTIFICATION') {
-    showNotification();
-    return Promise.resolve({ success: true });
+  if (message.type === 'TEST_LIGHT') {
+    // Test the light with a specific color or update
+    const hasIssues = message.hasIssues !== undefined ? message.hasIssues : true;
+    return lightController.updateLight(hasIssues)
+      .then(() => ({ success: true }))
+      .catch(err => ({ success: false, error: err.message }));
   }
 
-  if (message.type === 'UPDATE_SETTINGS') {
-    setupAlarm();
-    return Promise.resolve({ success: true });
+  if (message.type === 'LIGHT_SET_COLOR') {
+    const { hue, saturation, value } = message;
+    return lightController.setColor(hue, saturation, value)
+      .then(() => ({ success: true }))
+      .catch(err => ({ success: false, error: err.message }));
   }
 
-  if (message.type === 'GET_ALARM_INFO') {
-    return browser.alarms.get(ALARM_NAME).then(alarm => {
-      if (alarm) {
-        return {
-          scheduledTime: alarm.scheduledTime,
-          formattedTime: new Date(alarm.scheduledTime).toLocaleString()
-        };
-      }
-      return null;
-    });
+  if (message.type === 'LIGHT_OFF') {
+    return lightController.turnOff()
+      .then(() => ({ success: true }))
+      .catch(err => ({ success: false, error: err.message }));
   }
 });
 
-// Set up alarm when extension starts
-setupAlarm();
+// Set up periodic alarm to check if page hasn't been visited in 24 hours
+browser.alarms.create('checkLastVisit', { periodInMinutes: 60 });
+
+// Listen for alarm to check last visit time
+browser.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'checkLastVisit') {
+    checkLastVisit();
+  }
+});
+
+// Check last visit on startup and update icon accordingly
+checkLastVisit();

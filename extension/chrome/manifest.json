@@ -4,16 +4,10 @@
   "version": "1.0.0",
   "description": "Scrapes punch data from punchit.atomicobject.com and controls a Kasa smart light",
 
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "punch-up-alert@atomicobject.com"
-    }
-  },
-
   "permissions": [
+    "alarms",
     "storage",
-    "nativeMessaging",
-    "alarms"
+    "nativeMessaging"
   ],
 
   "host_permissions": [
@@ -21,7 +15,8 @@
   ],
 
   "background": {
-    "scripts": ["light-controller.js", "background.js"]
+    "service_worker": "background.js",
+    "type": "module"
   },
 
   "content_scripts": [{

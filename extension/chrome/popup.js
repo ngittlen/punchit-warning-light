@@ -2,7 +2,7 @@
 
 // Load saved settings
 async function loadSettings() {
-  const settings = await browser.storage.local.get(['punchData', 'lastUpdate', 'lastVisitTime']);
+  const settings = await chrome.storage.local.get(['punchData', 'lastUpdate', 'lastVisitTime']);
 
   // Display punch issues
   if (settings.punchData) {
@@ -92,7 +92,7 @@ function formatDate(dateString) {
 // Test light
 async function testLight() {
   try {
-    const result = await browser.runtime.sendMessage({ type: 'TEST_LIGHT', hasIssues: true });
+    const result = await chrome.runtime.sendMessage({ type: 'TEST_LIGHT', hasIssues: true });
     if (result.success) {
       alert('Light test sent! Check your light.');
     } else {
@@ -106,7 +106,7 @@ async function testLight() {
 // Turn light off
 async function lightOff() {
   try {
-    const result = await browser.runtime.sendMessage({ type: 'LIGHT_OFF' });
+    const result = await chrome.runtime.sendMessage({ type: 'LIGHT_OFF' });
     if (result.success) {
       alert('Light turned off');
     } else {
@@ -123,7 +123,7 @@ document.getElementById('testLightIssues').addEventListener('click', testLight);
 document.getElementById('lightOff').addEventListener('click', lightOff);
 
 // Listen for storage changes to update display
-browser.storage.onChanged.addListener((changes, area) => {
+chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local') {
     if (changes.punchData) {
       displayScrapedData(changes.punchData.newValue);

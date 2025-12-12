@@ -52,10 +52,13 @@ function scrapePunchData() {
 // Send scraped data to background script
 function sendData() {
   const data = scrapePunchData();
+  console.log('Punch-Up Extension: Scraped data:', data);
 
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     type: 'PUNCH_DATA_SCRAPED',
     data: data
+  }).then(() => {
+    console.log('Punch-Up Extension: Data sent to background script');
   }).catch(error => {
     console.error('Punch-Up Extension: Error sending data:', error);
   });
@@ -83,9 +86,10 @@ observer.observe(document.body, {
 });
 
 // Listen for messages from background script
-browser.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SCRAPE_NOW') {
     sendData();
-    return Promise.resolve({ success: true });
+    sendResponse({ success: true });
+    return true;
   }
 });

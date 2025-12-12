@@ -1,0 +1,7 @@
+{
+  "name": "com.punchup.light",
+  "description": "Punch-Up Light Controller - Controls Kasa smart light based on punch issues",
+  "path": "/!!YOUR-DIR-HERE!!/punch-up-light/python/punch-light-wrapper.sh",
+  "type": "stdio",
+  "allowed_extensions": ["punch-up-alert@atomicobject.com"]
+}
