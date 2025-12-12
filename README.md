@@ -1,6 +1,7 @@
 # Punch-Up Light
 
 A Firefox/Chrome extension + Python system that controls a Kasa smart light to warn you about PunchIt punch issues with an escalating color system.
+[[punchit-light.gif]]
 
 ## Overview
 
@@ -67,7 +68,7 @@ cp python/com.punchup.light.json ~/Library/Application\ Support/Mozilla/NativeMe
 3. Click "Load Temporary Add-on"
 4. Select any file in `extension/firefox/` (e.g., `manifest.json`)
 
-#### Chrome Extension
+#### Chrome Extension (WIP)
 
 **Native Messaging Setup:**
 
