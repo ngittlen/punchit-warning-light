@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Punch-Up Alert",
+  "version": "1.0.0",
+  "description": "Scrapes punch data from punchit.atomicobject.com and shows alerts at scheduled times",
+
+  "permissions": [
+    "alarms",
+    "notifications",
+    "storage"
+  ],
+
+  "host_permissions": [
+    "https://punchit.atomicobject.com/*"
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [{
+    "matches": ["https://punchit.atomicobject.com/newpunch.php*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Punch-Up Alert Settings"
+  },
+
+  "icons": {
+    "48": "icon-48.png",
+    "96": "icon-96.png"
+  }
+}
