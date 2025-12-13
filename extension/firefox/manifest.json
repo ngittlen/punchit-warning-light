@@ -3,10 +3,16 @@
   "name": "Punch-Up Light",
   "version": "1.0.0",
   "description": "Scrapes punch data from punchit.atomicobject.com and controls a Kasa smart light",
+  "author": "Nate Gittlen",
+  "homepage_url": "https://github.com/ngittlen/punchit-warning-light",
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "punch-up-alert@atomicobject.com"
+      "id": "punch-up-alert@atomicobject.com",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": ["websiteContent"]
+      }
     }
   },
 
