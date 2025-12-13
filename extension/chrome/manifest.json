@@ -3,6 +3,7 @@
   "name": "Punch-Up Light",
   "version": "1.0.0",
   "description": "Scrapes punch data from punchit.atomicobject.com and controls a Kasa smart light",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtPsdL/z0UfUZHbyVa4W2aIoQANh5BVw3YQscv+rFnLi4GXZfN0msinQTOFIIT12x3iTgU+0/FnKNm06S7SRoiJjUY3mBxH/u+c1iAJkcd4uIaCa/i7IytqlEu6/c+OIa4fCONwdtBxgFNgGCpmMpiZYAolzbNDGcQOYUEZoumhSpx3gipfIEhIghUBYntmTBDuv2MW9vvlOOEHxUs3lPhy7J4nnbWIz2K3CZL9L3HAnoYvLWHhRWAR6oB/SRp9Rqn1BB+djACWxBm80mND5mOfZHuEVgc1FC7E4j/R/o+AErBaLwb5dB0w5nxYRhCts5aHJPEe0sRP2Eo4knIkosKwIDAQAB",
 
   "permissions": [
     "alarms",

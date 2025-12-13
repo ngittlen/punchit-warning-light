@@ -70,7 +70,9 @@ cp python/com.punchup.light.json ~/Library/Application\ Support/Mozilla/NativeMe
 3. Click "Load Temporary Add-on"
 4. Select any file in `extension/firefox/` (e.g., `manifest.json`)
 
-#### Chrome Extension (WIP)
+#### Chrome Extension
+
+The Chrome extension includes a stable key in the manifest, so the extension ID will remain consistent: `bdnpfninfdjgcoknomhmeinpabekeeje`
 
 **Native Messaging Setup:**
 
@@ -99,6 +101,10 @@ cp python/com.punchup.light.json ~/Library/Application\ Support/Google/Chrome/Na
 3. Enable "Developer mode" (toggle in top-right corner)
 4. Click "Load unpacked"
 5. Select the `extension/chrome/` directory
+6. Verify the extension ID matches: `bdnpfninfdjgcoknomhmeinpabekeeje`
+7. **Restart Chrome completely** (not just reload - fully quit and reopen)
+
+**Note:** The extension uses a pre-generated key stored in `manifest.json` to ensure a stable extension ID.
 
 ## How It Works
 
@@ -184,6 +190,10 @@ pipenv run python punch-light-controller.py set 180 100 100  # Cyan
 4. Check browser console for native messaging errors:
    - Firefox: Browser Console (Ctrl+Shift+J / Cmd+Shift+J)
    - Chrome: Extension background page console (chrome://extensions → Details → Inspect views: background page)
+5. For Chrome: Verify extension ID matches `bdnpfninfdjgcoknomhmeinpabekeeje`
+   - If it doesn't match, the extension key may have been lost
+   - Make sure `extension/chrome/manifest.json` contains the `"key"` field
+   - Reload the extension and restart Chrome completely
 
 ## Technical Details
 
