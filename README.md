@@ -65,6 +65,14 @@ cp python/com.punchup.light.json ~/Library/Application\ Support/Mozilla/NativeMe
 
 **Load Extension:**
 
+#### Packaged Extension
+1. Download the extension from the [releases](https://github.com/ngittlen/punchit-warning-light/releases/tag/1.0.0)
+2. Open Firefox
+3. Navigate to `about:addons`
+4. Drag the extension .xpi file into the browser
+5. Click Ok in the install popup
+
+#### Installing from source
 1. Open Firefox
 2. Navigate to `about:debugging#/runtime/this-firefox`
 3. Click "Load Temporary Add-on"
