@@ -80,12 +80,12 @@ cp python/com.punchup.light.json ~/Library/Application\ Support/Mozilla/NativeMe
 
 #### Chrome Extension
 
-#### Install from the chrome web store:
+#### Installing from the chrome web store
 
 Get the chome extension here:
 https://chromewebstore.google.com/detail/punch-up-light/iniafhdmhnhckhklhkdcdbodjoonbkec
 
-#### Install from source:
+#### Installing from source
 
 The Chrome extension includes a stable key in the manifest, so the extension ID will remain consistent: `bdnpfninfdjgcoknomhmeinpabekeeje`
 
